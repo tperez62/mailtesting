@@ -14,6 +14,7 @@ require 'logger'
 @use_ssl = true
 @attachment_path = 'attachments'
 @log_path = 'logs'
+@downloaded_files = 0
 VALID_ATTACHMENT_EXTS = [
 	'.csv',
 	'.txt'
@@ -96,16 +97,26 @@ def save_attachments
 					data = attachment.body.decoded
 				
 					#Creates a random file name and checks for if it already exists
-					random_str = SecureRandom.hex[0..5]
-					save_filename = "#{@currentDate}-#{random_str}#{file_ext}"
-					if File.exists?("#{working_path}#{save_filename}")
-						puts "File, #{save_filename} already exists"
-						next
+					save_filename = create_random_filename(file_ext)
+					
+					valid = false
+					while (valid == false)
+						if File.exists?("#{working_path}#{save_filename}")
+							save_filename = create_random_filename(file_ext)
+						else
+							valid = true
+						end
 					end
+					
+					#if File.exists?("#{working_path}#{save_filename}")
+						#puts "File already exists"
+						#next
+					#end
 					
 					File.open(File.join(working_path, save_filename), "wb") { |f| 
 						f.write data
 					}
+					@downloaded_files += 1
 				end
 			end
 			@currentSeqno = email_arr[1]
@@ -114,13 +125,20 @@ def save_attachments
 			@currentSeqno = @lastSeqno
 			@logger.info("No Files Downloaded")
 		else
-			@logger.info("Downloads Successful. Last Seqno downloaded was #{@currentSeqno}")
+			@logger.info("Downloads Successful. Downloaded #{@downloaded_files} files. Last Seqno downloaded was #{@currentSeqno}")
 		end
 		update_csv
 	rescue => e
 		@logger.error(e.message)
 		raise e.message
 	end
+end
+
+#Creates a random filename from the current date and 6 random characters
+def create_random_filename(file_ext)
+	random_str = SecureRandom.hex[0..5]
+	save_filename = "#{@currentDate}-#{random_str}#{file_ext}"
+	save_filename
 end
 
 #Updates the CSV with the last downloaded Seqno and the last date that the script was run
