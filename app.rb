@@ -12,12 +12,11 @@ require 'logger'
 @currentDate = Time.now.strftime('%d-%b-%Y')
 @port = 993
 @use_ssl = true
-@attachment_path = 'attachments'
+@attachment_path = 'Invoice Downloads'
 @log_path = 'logs'
 @downloaded_files = 0
 VALID_ATTACHMENT_EXTS = [
-	'.csv',
-	'.txt'
+	'.pdf'
 ]
 
 #Creates logger and log path
