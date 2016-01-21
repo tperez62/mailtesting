@@ -8,7 +8,7 @@ require 'logger'
 @user = ''
 @pass = ''
 @folder = 'INBOX'
-@app_path = '/home/tony/ruby/mailtesting'
+# @app_path = '/home/tony/ruby/mailtesting'
 @currentDate = Time.now.strftime('%d-%b-%Y')
 @port = 993
 @use_ssl = true
@@ -31,10 +31,10 @@ end
 def load_csv(csvname)
 	begin
 		@csvname = csvname
-		if !File.exists?("#{@app_path}/#{csvname}")
+		if !File.exists?(csvname)
 			default_csv(csvname)
 		end
-		csv = CSV.read("#{@app_path}/#{csvname}", headers:true, converters: :numeric)
+		csv = CSV.read(csvname, headers:true, converters: :numeric)
 		puts "load success"
 		@lastSeqno = csv[0]['seqno']
 		@lastDate = csv[0]['date']
@@ -46,7 +46,7 @@ end
 
 #Creates default CSV with seqno=0, and date=currentDate, 3 days back
 def default_csv(csvname)
-	CSV.open("#{@app_path}/#{csvname}", "wb") do |csv|
+	CSV.open(csvname, "wb") do |csv|
 		csv << ['seqno', 'date']
 		csv << [0, Date.parse(@currentDate).prev_day(3).strftime('%d-%b-%Y')]
 	end
@@ -142,7 +142,7 @@ end
 
 #Updates the CSV with the last downloaded Seqno and the last date that the script was run
 def update_csv
-	CSV.open("#{@app_path}/#{@csvname}", "wb") do |csv|
+	CSV.open(@csvname, "wb") do |csv|
 		csv << ['seqno', 'date']
 		csv << [@currentSeqno, @currentDate]
 	end
